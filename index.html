@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project</title>
+    <!--
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+    crossorigin=""
+    
+  />
+  -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <!--
+  <script
+    src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+    crossorigin=""
+  ></script>
+  -->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <h1>Recent Earthquakes in the world</h1>
+        
+      </header>
+      <a class="help_link"
+      href="https://github.com/tbdestroyer/Final_Project_INST377/blob/main/README.md"
+      target="_blank"
+      rel="noopener noreferrer"
+      ><h4><div class="small_box">Help/About</div> </h4></a>
+    
+      <div class="container">
+        <!----------------------------LEFT SECTION--------------->
+        <div class="left_section box">
+          <h3>Select a time priod</h3>
+          <form
+            class="box main_form">
+            <div>
+              <div class="radio_button">
+                <input type="radio" id="radio_1" name="period" value="radio_1"
+                       checked>
+                <label for="period">Past Day</label>
+              </div>
+          
+              <div class="radio_button">
+                <input type="radio" id="radio_2" name="period" value="radio_2">
+                <label for="period">Past 7 Days</label>
+              </div>
+          
+              <div class="radio_button">
+                <input type="radio" id="radio_3" name="period" value="radio_3">
+                <label for="period">Past 30 Days</label>
+              </div>
+
+              <label class = "menu_label" for="region">Earquake Region</label>
+              <select class= "dropdown" name="region" id="region1">
+                <option value="world">World</option>
+                <option value="north_america">North America</option>
+                <option value="south_america">South America</option>
+                <option value="asia">Asia</option>
+                <option value="eupore">Europe</option>
+                <option value="africa">Africa</option>
+              </select>
+             
+              <div>
+              <button  type="button" class="button1" id="get-region">Submit</button>
+              </div>
+             <!--  <div class="lds-ellipsis" id="data_load_animation"><div></div><div></div><div></div><div></div></div> -->
+            </div>
+            
+          </form>
+        </div>
+
+        <!----------------------------RIGHT SECTION-------------->
+        <div class="right_section box2"> 
+          <!-- <button  type="button" class="button1" id="get-region">Help/about</button> -->
+          
+          <h3>Recent Earthquakes</h3>
+            
+          <div id="map" class="box"></div>
+          <div class="box" id="restaurant_list">Earthquake details</div>
+          
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <a
+        href="https://github.com/tbdestroyer/Final_Project_INST377"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Taner Bulbul github (tbdestroyer)</a
+      >
+    </footer>
+   <!-- <script src="script.js"></script> -->
+  </body>
+</html>
