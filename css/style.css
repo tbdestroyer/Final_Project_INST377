@@ -79,6 +79,16 @@ form {
   flex:1;
 }
 
+.container_2 {
+  margin: 0 20px;
+  display: flex;
+  /*background-color: rgb(151, 176, 247);*/
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .header {
   padding-top: 1rem;
   padding-left: 1rem;
@@ -161,7 +171,17 @@ form {
   flex: 0 1 auto;
   margin: 1rem;
   padding: 1rem;
-  width: 300px;;
+  width: 300px;
+}
+.left_section_2 {
+  /*background-color: rgba(220, 98, 98, 0.8);*/
+  display:flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  /*margin: 1rem;
+  padding: 1rem;
+  width: 300px;*/
 }
 
 .right_section {
@@ -236,11 +256,12 @@ div.carousel {
   overflow: hidden;
   text-align: center;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   margin: 0 auto;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .carousel .slides {
@@ -272,7 +293,7 @@ div.carousel {
     - now make sure that images are _always_ square
     - ... there's a reason crop tools are popular in image editors
    */
-  width: 150px; 
+  width: 300px; 
 }
 
 .prev,
@@ -371,6 +392,11 @@ form label {
   width: 100%;
   padding: 1px;
   font-size: 1rem;
+}
+
+#radio_1,#radio_2,#radio_3 {
+
+  accent-color: rgb(54, 125, 192);
 }
 
 .menu_label{
@@ -545,7 +571,9 @@ form label {
     display: block;
     width: 400px;
     height: 380px;
-    border: 2px dashed rgb(99,99,99);
+    border: 2px rgb(99,99,99);
     margin-bottom: 1rem;
   }
+
+  
 }

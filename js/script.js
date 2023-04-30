@@ -28,7 +28,33 @@
     return dateString;
   }
 
+  // Update earthquake image
 
+  function updateImage(slidesArray, slidePosition) {
+
+    const totalSlides = slidesArray.length;
+
+    slidesArray.forEach(slide => { 
+      slide.classList.remove('visible');
+      slide.classList.add('hidden');
+    
+    });
+
+    if(slidePosition === totalSlides-1) {
+
+      slidePosition = 0;
+    }
+    else{
+    
+      slidePosition += 1;
+    }
+    
+    slidesArray[slidePosition].classList.add('visible');
+
+    return slidePosition;
+  }
+
+  //Inhect earthquake summary info under the map
   function injectHTML(list) {
     console.log('fired injectHTML');
     const target = document.querySelector('#earthquake_summary');
@@ -48,7 +74,6 @@
   }
 
   /* Filter on the selected magnitude and period */
-  /* can test epoch time conversion at https://www.epochconverter.com */
 function filter_Data(list, mag_query, period_query) {
     let min = 4.0;
     let max = 10.0;
@@ -79,7 +104,6 @@ function filter_Data(list, mag_query, period_query) {
       max = 10.0;
     }
     console.log(min,max);
-    
 
     // if radio_button is 1 it is already set above as default
     // create a boolean based opast 1 day, past 7 days or past 30 days based on radio button period
@@ -117,7 +141,7 @@ function filter_Data(list, mag_query, period_query) {
 }
 
 
-  /* Map initialization, center it at ???? */
+  /* Map initialization, center it at Turkey */
   function initMap(){
 
     console.log("initMap");
@@ -139,9 +163,21 @@ function filter_Data(list, mag_query, period_query) {
         }
     }));
 
+    // Make the tsunami icons red
+    const tsunamiIcon = L.icon({
+      iconUrl: 'images/marker-icon-red.png',
+      iconSize: [25, 40],
+      });
+  
     array.forEach((item, index)=>{
        // console.log(item.geometry.coordinates[1], item.geometry.coordinates[0]);
+
+       if(item.properties.tsunami === 1){
+           m = L.marker([item.geometry.coordinates[1], item.geometry.coordinates[0]], {icon: tsunamiIcon}).addTo(map);
+       }
+       else{
         m = L.marker([item.geometry.coordinates[1], item.geometry.coordinates[0]]).addTo(map);
+       }
 
         // Add a tooltip
         const tooltip = 'mag= '+ String(item.properties.mag) +"<br>loc= "+
@@ -154,7 +190,6 @@ function filter_Data(list, mag_query, period_query) {
 
   }
 
-   
 
   /****************************************
      Main Event
@@ -164,12 +199,20 @@ function filter_Data(list, mag_query, period_query) {
     const pageMap = initMap(); // initialize leaflet map
 
     // set query selectors for radio buttons, dropdown menu and update button
-    const form = document.querySelector('.main_form'); // get your main form so you can do JS with it
-    const submitButton= document.querySelector('#get-region'); // get a reference to  submit button
+    const submitButton= document.querySelector('#get-menuitem'); // get a reference to  submit button
     const radio_1_Button= document.querySelector('#radio_1'); // get a reference to radio 1 submit button
     const radio_2_Button= document.querySelector('#radio_2'); // get a reference to radio 2 submit button
     const radio_3_Button= document.querySelector('#radio_3'); // get a reference to radio 3 submit button
-    const dropdownMenuButton= document.querySelector('#region1'); // get a reference to radio 3 submit button
+    const dropdownMenuButton= document.querySelector('#menuitem_1'); // get a reference to radio 3 submit button
+    const myMediaQuery = window.matchMedia('(max-width: 736px)'); // width is in CSS as well, don't know how to do in one place
+  
+   
+    let slidePosition = 0;   // track image disoplayed
+    // gather a reference to every slide we're using via the class name and querySelectorAll
+    const slides = document.querySelectorAll('.carousel_item'); 
+
+    // change that "NodeList" into a Javascript "array", to get access to "array methods"
+    const slidesArray = Array.from(slides);
 
     /* API URL, we add start and end dates and min, max magnitude to this query */
     const urlbase ='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&'
@@ -182,7 +225,7 @@ function filter_Data(list, mag_query, period_query) {
     const startDate = getDateTime (Date.now() - 2592000000); // 30 days past in milliseconds
 
     //Keep track of previous dropdown menu selection value
-    let selectedMenuItem_Value = document.getElementById("region1").value;
+    let selectedMenuItem_Value = document.getElementById("menuitem_1").value;
     let selectedRadioButton_value = document.querySelector('input[name="period"]:checked').value;
 
     // show the ellipsis loading widget
@@ -248,7 +291,6 @@ function filter_Data(list, mag_query, period_query) {
 
       console.log(filtered_List);
 
-
       markerPlace(filtered_List, pageMap);
       injectHTML(filtered_List);
   
@@ -288,7 +330,7 @@ function filter_Data(list, mag_query, period_query) {
     dropdownMenuButton.addEventListener('click', (event) =>{
       console.log('Drop down menu clicked');
      
-      const selectedMenuItem = document.getElementById("region1");
+      const selectedMenuItem = document.getElementById("menuitem_1");
       
        // Take action only dropdown value has changed.
       if (selectedMenuItem.value != selectedMenuItem_Value)
@@ -300,8 +342,32 @@ function filter_Data(list, mag_query, period_query) {
         console.log(filtered_List);
         markerPlace(filtered_List, pageMap);
         injectHTML(filtered_List);
+
+        // Update image only in wide screen
+        if (!myMediaQuery.matches){
+           slidePosition = updateImage(slidesArray,slidePosition);
+        }
       }
     });
+
+    //Remove Image if the screen size is narrow
+    myMediaQuery.addEventListener('change', (event) =>{
+
+      console.log("Media query triggered");
+
+      if(myMediaQuery.matches) {
+        console.log("Media query triggered match");
+
+        slidesArray.forEach(slide => { 
+          slide.classList.remove('visible');
+          slide.classList.add('hidden');
+        });
+    
+       } else {
+         slidePosition = updateImage(slidesArray,slidePosition);
+    
+       }
+  });
 
   
   }
