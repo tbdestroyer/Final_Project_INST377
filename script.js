@@ -2,11 +2,58 @@
   ## Utility Functions
 */
 
+/* Use some code from https://www.coderrocketfuel.com/article/convert-unix-timestamp-to-yyyy-mm-dd-format*/
+   /* return yyyy-mm-dd string given milliseconds */
+   function getDateTime (timeInMilli) {
+    let date = new Date(timeInMilli); // current time in milliseconds minus past time in milliseconds
+    
+    // get the current year in YYYY digit format
+    const year = date.getFullYear();
+
+    // get the month in a 2-digit format
+    // getMonth() returns an index position of the month in an array.
+    // Therefore, we need to add 1 to get the correct month.
+    // toLocaleString() converts any single digit months to have a leading zero (i.e. "2" => "02")
+    let month = date.getMonth() + 1;
+    month = month.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
+
+    // get the current day of the month
+    // toLocaleString() converts any single digit days to have a leading zero (i.e. "8" => "08")
+    let day = date.getDate();
+    day = day.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
+
+    // combine the year, month, and day into one string to create the "YYYY-MM-DD" format
+    const dateString = `${year}-${month}-${day}`;
+    console.log(dateString)
+    return dateString;
+  }
+
+
+  function injectHTML(list) {
+    console.log('fired injectHTML');
+    const target = document.querySelector('#earthquake_summary');
+
+    // Count the earthquakes caused Tsunamis
+    const countTsunamies = list.filter(item => item.properties.tsunami === 1).length;
+      
+    // format the string to display in the summary
+    const summary = "Number of earthquakes : "+ String(list.length) + "\n" +
+                    "Number of tsunamis : " + String(countTsunamies);
+
+    if (list.length > 0)
+          target.innerText = summary
+    else
+        target.innerText = 'No earthquakes found';
+  
+  }
 
   /* Filter on the selected magnitude and period */
+  /* can test epoch time conversion at https://www.epochconverter.com */
 function filter_Data(list, mag_query, period_query) {
-     min = 4.0;
-     max = 10.0;
+    let min = 4.0;
+    let max = 10.0;
+    const endtime = Date.now(); // current epoch time in milliseconds
+    let starttime =  endtime - 86400000; // default to past 1 day
   
     if(mag_query === 'four_to_fourhalf' ){
       min = 4.0;
@@ -32,12 +79,26 @@ function filter_Data(list, mag_query, period_query) {
       max = 10.0;
     }
     console.log(min,max);
+    
+
+    // if radio_button is 1 it is already set above as default
+    // create a boolean based opast 1 day, past 7 days or past 30 days based on radio button period
+    if (period_query === 'radio_2'){
+      starttime =  endtime - 604800000; // 7 days in milliseconds
+    }
+    else if (period_query === 'radio_3'){
+      starttime =  endtime - 2592000000; // 30 days in milliseconds
+    }
+
+    console.log(period_query, starttime, endtime);
 
     /* Filter for Magnitude selected from drodown mwenu */
-    /* Todo: Filter for radio buttons, period selected, 1 day, 7 days or 30 days*/
+    /* Filter for radio buttons, period selected, 1 day, 7 days or 30 days*/
     return list.filter((item)=>{
-       return ( item.properties.mag >= min && item.properties.mag < max); 
+       return ( (item.properties.mag >= min && item.properties.mag < max) &&
+        (item.properties.time >= starttime && item.properties.time < endtime) );
     });
+
 
 }
 
@@ -80,36 +141,20 @@ function filter_Data(list, mag_query, period_query) {
 
     array.forEach((item, index)=>{
        // console.log(item.geometry.coordinates[1], item.geometry.coordinates[0]);
-        L.marker([item.geometry.coordinates[1], item.geometry.coordinates[0]]).addTo(map);
+        m = L.marker([item.geometry.coordinates[1], item.geometry.coordinates[0]]).addTo(map);
+
+        // Add a tooltip
+        const tooltip = 'mag= '+ String(item.properties.mag) +"<br>loc= "+
+             item.properties.place + "<br>"+"date="+getDateTime(item.properties.time); 
+
+        m.bindTooltip(tooltip);
+        
     });
     map.setView([39.9334, 32.8597], 2);
 
   }
 
-   /* Use some code from https://www.coderrocketfuel.com/article/convert-unix-timestamp-to-yyyy-mm-dd-format*/
-   /* return yyyy-mm-dd string given milliseconds in the past from current time*/
-  function getDateTime (gopastmilliSeconds) {
-    let date = new Date(Date.now()- gopastmilliSeconds); // current time in milliseconds minus past time in milliseconds
-    
-    // get the current year in YYYY digit format
-    const year = date.getFullYear();
-
-    // get the month in a 2-digit format
-    // getMonth() returns an index position of the month in an array.
-    // Therefore, we need to add 1 to get the correct month.
-    // toLocaleString() converts any single digit months to have a leading zero (i.e. "2" => "02")
-    let month = date.getMonth() + 1;
-    month = month.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
-
-    // get the current day of the month
-    // toLocaleString() converts any single digit days to have a leading zero (i.e. "8" => "08")
-    let day = date.getDate();
-    day = day.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
-
-    // combine the year, month, and day into one string to create the "YYYY-MM-DD" format
-    const dateString = `${year}-${month}-${day}`;
-    return dateString;
-  }
+   
 
   /****************************************
      Main Event
@@ -133,8 +178,8 @@ function filter_Data(list, mag_query, period_query) {
     let filtered_List = []; // this list holds the filtered list based on magnitude and data
 
     // Date period of earthquake datae
-    const endDate = getDateTime (0); // current dat in year,month, day
-    const startDate = getDateTime (2592000000); // 30 days past in milliseconds
+    const endDate = getDateTime (Date.now()); // current date in year,month, day
+    const startDate = getDateTime (Date.now() - 2592000000); // 30 days past in milliseconds
 
     //Keep track of previous dropdown menu selection value
     let selectedMenuItem_Value = document.getElementById("region1").value;
@@ -168,6 +213,7 @@ function filter_Data(list, mag_query, period_query) {
     console.log(filtered_List);
 
     markerPlace(filtered_List, pageMap);
+    injectHTML(filtered_List);
 
     // Refresh button listener, when clicked updates earthquake data from teh API
     submitButton.addEventListener('click', async (event) =>{
@@ -204,6 +250,7 @@ function filter_Data(list, mag_query, period_query) {
 
 
       markerPlace(filtered_List, pageMap);
+      injectHTML(filtered_List);
   
     });
 
@@ -218,6 +265,7 @@ function filter_Data(list, mag_query, period_query) {
       console.log(filtered_List);
 
       markerPlace(filtered_List, pageMap);
+      injectHTML(filtered_List);
   
     });
 
@@ -232,6 +280,7 @@ function filter_Data(list, mag_query, period_query) {
       console.log(filtered_List);
 
       markerPlace(filtered_List, pageMap);
+      injectHTML(filtered_List);
   
     });
 
@@ -247,9 +296,10 @@ function filter_Data(list, mag_query, period_query) {
         console.log("selected menu item value = ", selectedMenuItem.value);
         selectedMenuItem_Value= selectedMenuItem.value;
 
-        filtered_List = filter_Data(currentList, selectedMenuItem_Value);
+        filtered_List = filter_Data(currentList, selectedMenuItem_Value,selectedRadioButton_value);
         console.log(filtered_List);
         markerPlace(filtered_List, pageMap);
+        injectHTML(filtered_List);
       }
     });
 
