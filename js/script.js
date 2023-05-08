@@ -24,7 +24,7 @@
 
     // combine the year, month, and day into one string to create the "YYYY-MM-DD" format
     const dateString = `${year}-${month}-${day}`;
-    console.log(dateString)
+    //console.log(dateString)
     return dateString;
   }
 
@@ -206,13 +206,19 @@ function filter_Data(list, mag_query, period_query) {
     const dropdownMenuButton= document.querySelector('#menuitem_1'); // get a reference to radio 3 submit button
     const myMediaQuery = window.matchMedia('(max-width: 736px)'); // width is in CSS as well, don't know how to do in one place
   
+    const loadAnimation = document.querySelector('.lds-ellipsis'); // get a reference to your loading animation
+    loadAnimation.classList.remove('lds-ellipsis');
    
     let slidePosition = 0;   // track image disoplayed
     // gather a reference to every slide we're using via the class name and querySelectorAll
     const slides = document.querySelectorAll('.carousel_item'); 
-
     // change that "NodeList" into a Javascript "array", to get access to "array methods"
     const slidesArray = Array.from(slides);
+
+    /* when page loads, try reading the data from local storage */
+    let storedEarthquakeData = localStorage.getItem("storedEarthquakeData");
+    let parsedData = JSON.parse(storedEarthquakeData);
+
 
     /* API URL, we add start and end dates and min, max magnitude to this query */
     const urlbase ='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&'
@@ -220,7 +226,7 @@ function filter_Data(list, mag_query, period_query) {
     let currentList = []; // This list holds the data from API
     let filtered_List = []; // this list holds the filtered list based on magnitude and data
 
-    // Date period of earthquake datae
+    // Date period of earthquake date
     const endDate = getDateTime (Date.now()); // current date in year,month, day
     const startDate = getDateTime (Date.now() - 2592000000); // 30 days past in milliseconds
 
@@ -228,56 +234,93 @@ function filter_Data(list, mag_query, period_query) {
     let selectedMenuItem_Value = document.getElementById("menuitem_1").value;
     let selectedRadioButton_value = document.querySelector('input[name="period"]:checked').value;
 
-    // show the ellipsis loading widget
-    const loadAnimation = document.querySelector('.lds-ellipsis'); // get a reference to your loading animation
-    submitButton.style.display = 'none'; // let Refresh button disappear
-  
-    console.log("before API fetch");
-    /* Let's get some data from the API - it will take a second or two to load */
-    /* the async keyword means we can make API requests */
+    if(parsedData === null || parsedData?.length === 0){  //if we don't have stred data fetch first
+
+        console.log("parsedData is null", parsedData);
     
-    // Use this one to update the data from the API, get 30 days past earthquake data and magnitude from 4.0 to 10.0 then filter
-    // using filter functions for filtering magnituteds and past 1 day and past 7 days earthquakes
-    let results = await fetch(urlbase+'&starttime='+startDate+'&endtime='+endDate+'&minmagnitude=4.0&maxmagnitude=10.0');
-    let arrayFromJson = await results.json(); // here is where we get the data from our request as JSON
-  
-    console.log(arrayFromJson);
-   
-    console.log("after API fetch");
-    submitButton.style.display = 'block'; // let's turn the Refresh button back on
-    loadAnimation.classList.remove('lds-ellipsis');
-    loadAnimation.classList.add('lds-ellipsis_hidden');
+        // show the ellipsis loading widget
+        
+        submitButton.style.display = 'none'; // let Refresh button disappear
+      
+        console.log("before API fetch");
+        /* Let's get some data from the API - it will take a second or two to load */
+        /* the async keyword means we can make API requests */
+        
+        // Use this one to update the data from the API, get 30 days past earthquake data and magnitude from 4.0 to 10.0 then filter
+        // using filter functions for filtering magnituteds and past 1 day and past 7 days earthquakes
+        const results = await fetch(urlbase+'&starttime='+startDate+'&endtime='+endDate+'&minmagnitude=4.0&maxmagnitude=10.0');
+        const arrayFromJson = await results.json(); // here is where we get the data from our request as JSON
+      
+        console.log(arrayFromJson);
+      
+        console.log("after API fetch");
 
-    currentList = processJsonData(arrayFromJson);
-    console.log(currentList);
+        // This changes the response from the GET into data we can use - an "object"
+        localStorage.setItem('storedEarthquakeData', JSON.stringify(arrayFromJson)); //store as a string in local storage
+        parsedData = arrayFromJson;
 
-    filtered_List = filter_Data(currentList, selectedMenuItem_Value, selectedRadioButton_value);
+        submitButton.style.display = 'block'; // let's turn the Refresh button back on
+        loadAnimation.classList.remove('lds-ellipsis');
+        loadAnimation.classList.add('lds-ellipsis_hidden');
 
-    console.log(filtered_List);
+        currentList = processJsonData(parsedData);
+        console.log(currentList);
 
-    markerPlace(filtered_List, pageMap);
-    injectHTML(filtered_List);
+        filtered_List = filter_Data(currentList, selectedMenuItem_Value, selectedRadioButton_value);
+
+        console.log(filtered_List);
+
+        markerPlace(filtered_List, pageMap);
+        injectHTML(filtered_List);
+   } 
+   else{  // if we have stired browser data, use it
+        console.log("parsedData NOT NULL",parsedData);
+    
+        currentList = processJsonData(parsedData);
+        console.log(currentList);
+
+        filtered_List = filter_Data(currentList, selectedMenuItem_Value, selectedRadioButton_value);
+
+        console.log(filtered_List);
+
+        markerPlace(filtered_List, pageMap);
+        injectHTML(filtered_List);
+   }
+
 
     // Refresh button listener, when clicked updates earthquake data from teh API
     submitButton.addEventListener('click', async (event) =>{
       console.log('update button clicked');
+
+    // Date period of earthquake date data gets updated with the resfresh
+      const endDate = getDateTime (Date.now()); // current date in year,month, day
+      const startDate = getDateTime (Date.now() - 2592000000); // 30 days past in milliseconds
+
       submitButton.style.display = 'none'; // let Refresh button disappear
       loadAnimation.classList.add('lds-ellipsis');
       // Use this one to update the data from the API, get 30 days past earthquake data
-      results = await fetch(urlbase+'&starttime='+startDate+'&endtime='+endDate+'&minmagnitude=4.0&maxmagnitude=10.0');
-      arrayFromJson = await results.json(); // here is where we get the data from our request as JSON
-      
+      const results = await fetch(urlbase+'&starttime='+startDate+'&endtime='+endDate+'&minmagnitude=4.0&maxmagnitude=10.0');
+      const arrayFromJson = await results.json(); // here is where we get the data from our request as JSON
+
+      // Clear the stired data as we are refreshing from the API
+      localStorage.clear();
+
+      localStorage.setItem('storedEarthquakeData', JSON.stringify(arrayFromJson)); //store as a string in local storage
+      parsedData = arrayFromJson;
+
       submitButton.style.display = 'block'; // let's turn the Refresh button back on
       loadAnimation.classList.remove('lds-ellipsis');
       loadAnimation.classList.add('lds-ellipsis_hidden');
+
       /*update current list */
-      currentList = processJsonData(arrayFromJson);
+      currentList = processJsonData(parsedData);
       console.log(currentList);
     
       filtered_List = filter_Data(currentList, selectedMenuItem_Value, selectedRadioButton_value);
     
       console.log(filtered_List);
       markerPlace(filtered_List, pageMap);
+      injectHTML(filtered_List);
  
     });
 

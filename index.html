@@ -5,116 +5,161 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project</title>
-    
+
     <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-    crossorigin=""
-    
-  />
-  
-  <link rel="stylesheet" href="./css/style.css" />
-  <!-- Make sure you put this AFTER Leaflet's CSS -->
-  
-  <script
-    src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-    crossorigin=""
-  ></script>
-  
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""
+    />
+
+    <link rel="stylesheet" href="./css/style.css" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+      crossorigin=""
+    ></script>
   </head>
   <body>
     <div class="wrapper">
       <header class="header">
         <h1>Recent Earthquakes in the world</h1>
-        
       </header>
-      <a class="help_link"
-      href="http://github.com/tbdestroyer"
-      target="_blank"
-      rel="noopener noreferrer"
-      ><h4><div class="small_box">Help/About</div> </h4></a>
-    
+      <a
+        class="help_link"
+        href="https://github.com/tbdestroyer/Final_Project_INST377/blob/main/README.md"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><h4><div class="small_box">Help/About</div></h4></a
+      >
+
       <div class="container">
         <!----------------------------LEFT SECTION--------------->
 
         <div class="container_2">
-
-
-        <div class="left_section box">
-          <h3>Select period and magnitude</h3>
-          <form
-            class="box main_form">
-            <div>
-              <div class="radio_button">
-                <input type="radio" id="radio_1" name="period" value="radio_1">
-                <label for="period">Past Day</label>
-              </div>
-          
-              <div class="radio_button">
-                <input type="radio" id="radio_2" name="period" value="radio_2">
-                <label for="period">Past 7 Days</label>
-              </div>
-          
-              <div class="radio_button">
-                <input type="radio" id="radio_3" name="period" value="radio_3" checked>
-                <label for="period">Past 30 Days</label>
-              </div>
-
-              <label class = "menu_label" for="menulist">Earthquake Magnitude</label>
-              <select class= "dropdown" name="menulist" id="menuitem_1">
-                <option value="four_to_fourhalf">4.0-4.5</option>
-                <option value="fourhalf_to_five">4.5-5.0</option>
-                <option value="five_to_fivehalf">5.0-5.5</option>
-                <option value="fivehalf_to_six">5.5-6.0</option>
-                <option value="six_to_ten">6.0-10.0</option>
-              </select>
-             
+          <div class="left_section box">
+            <h3>Select period and magnitude</h3>
+            <form class="box main_form">
               <div>
-              <button  type="button" class="button1" id="get-menuitem">Refresh from API</button>
-              <div class="lds-ellipsis" id="data_load_animation"><div></div><div></div><div></div><div></div></div>
+                <div class="radio_button">
+                  <input
+                    type="radio"
+                    id="radio_1"
+                    name="period"
+                    value="radio_1"
+                  />
+                  <label for="period">Past Day</label>
+                </div>
+
+                <div class="radio_button">
+                  <input
+                    type="radio"
+                    id="radio_2"
+                    name="period"
+                    value="radio_2"
+                  />
+                  <label for="period">Past 7 Days</label>
+                </div>
+
+                <div class="radio_button">
+                  <input
+                    type="radio"
+                    id="radio_3"
+                    name="period"
+                    value="radio_3"
+                    checked
+                  />
+                  <label for="period">Past 30 Days</label>
+                </div>
+
+                <label class="menu_label" for="menulist"
+                  >Earthquake Magnitude</label
+                >
+                <select class="dropdown" name="menulist" id="menuitem_1">
+                  <option value="four_to_fourhalf">4.0-4.5</option>
+                  <option value="fourhalf_to_five">4.5-5.0</option>
+                  <option value="five_to_fivehalf">5.0-5.5</option>
+                  <option value="fivehalf_to_six">5.5-6.0</option>
+                  <option value="six_to_ten">6.0-10.0</option>
+                </select>
+
+                <div>
+                  <button type="button" class="button1" id="get-menuitem">
+                    Refresh from API
+                  </button>
+                  <div class="lds-ellipsis" id="data_load_animation">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="carousel">
+            <div class="slides">
+              <!-- image box -->
+              <div class="carousel_item visible">
+                <img
+                  id="slide_1"
+                  src="images/izmit_Turkiye_1999.JPG"
+                  alt="Izmit, Turkiye 1999"
+                />
+              </div>
+              <div class="carousel_item hidden">
+                <img
+                  id="slide_2"
+                  src="images/loma_Pierta_ca_1989.JPG"
+                  alt="Loma Pierto, CA 1989"
+                />
+              </div>
+              <div class="carousel_item hidden">
+                <img
+                  id="slide_3"
+                  src="images/San_fernando_ca_1971.JPG"
+                  alt="San Fernando,CA 1971"
+                />
+              </div>
+              <div class="carousel_item hidden">
+                <img
+                  id="slide_4"
+                  src="images/haiti_2010.JPG"
+                  alt="Haiti 2010"
+                />
+              </div>
+              <div class="carousel_item hidden">
+                <img
+                  id="slide_5"
+                  src="images/Turkiye_2023.JPG"
+                  alt="Turkiye 2023"
+                />
               </div>
             </div>
-            
-          </form>
-
-        </div>
-
-        <div class="carousel">
-          <div class="slides">
-            <!-- image box -->
-            <div class="carousel_item visible"><img id="slide_1" src="images/izmit_Turkiye_1999.JPG" alt="Izmit, Turkiye 1999" /></div>
-            <div class="carousel_item hidden"><img id="slide_2" src="images/loma_Pierta_ca_1989.JPG" alt="Loma Pierto, CA 1989" /></div>
-            <div class="carousel_item hidden"><img id="slide_3" src="images/San_fernando_ca_1971.JPG" alt="San Fernando,CA 1971" /></div>
-            <div class="carousel_item hidden"><img id="slide_4" src="images/haiti_2010.JPG" alt="Haiti 2010"/></div>
-            <div class="carousel_item hidden"><img id="slide_5" src="images/Turkiye_2023.JPG" alt="Turkiye 2023"/></div>
           </div>
         </div>
 
-        </div>
-        
-
         <!----------------------------RIGHT SECTION-------------->
-        <div class="right_section box2"> 
-      
+        <div class="right_section box2">
           <h3>Recent Earthquakes</h3>
-            
+
           <div id="map" class="box"></div>
           <div class="box" id="earthquake_summary">Earthquake details</div>
-          
         </div>
       </div>
     </div>
 
     <footer class="footer">
       <a
-        href="http://github.com/tbdestroyer"
+        href="https://github.com/tbdestroyer/Final_Project_INST377"
         target="_blank"
         rel="noopener noreferrer"
         >Taner Bulbul github (tbdestroyer)</a
       >
     </footer>
-   <script src="./js/script.js"></script>
+    <script src="./js/script.js"></script>
   </body>
 </html>
