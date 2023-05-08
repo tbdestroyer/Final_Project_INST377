@@ -1,11 +1,21 @@
+/****************************************************************
+ * 
+ * Taner Bulbul
+ * INST 377, Sprint 2023
+ * 
+ * Final peoject
+ * 
+ * 
+ * **************************************************************/
 /*
   ## Utility Functions
 */
 
-/* Use some code from https://www.coderrocketfuel.com/article/convert-unix-timestamp-to-yyyy-mm-dd-format*/
-   /* return yyyy-mm-dd string given milliseconds */
-   function getDateTime (timeInMilli) {
-    let date = new Date(timeInMilli); // current time in milliseconds minus past time in milliseconds
+/* Used some code from https://www.coderrocketfuel.com/article/convert-unix-timestamp-to-yyyy-mm-dd-format*/
+/* return yyyy-mm-dd string given epoch time in milliseconds */
+
+ function getDateTime (timeInMilli) {
+    const date = new Date(timeInMilli); // current time in milliseconds
     
     // get the current year in YYYY digit format
     const year = date.getFullYear();
@@ -26,10 +36,13 @@
     const dateString = `${year}-${month}-${day}`;
     //console.log(dateString)
     return dateString;
-  }
+ }
 
-  // Update earthquake image
-
+  /* Update earthquake image
+  * iterates through image slide
+  * slidePosition : last slide position
+  * slideArray: array of images
+  */
   function updateImage(slidesArray, slidePosition) {
 
     const totalSlides = slidesArray.length;
@@ -54,7 +67,9 @@
     return slidePosition;
   }
 
-  //Inhect earthquake summary info under the map
+  /* Inject earthquake summary info under the map
+  * list : Filtered earthquake list
+  */
   function injectHTML(list) {
     console.log('fired injectHTML');
     const target = document.querySelector('#earthquake_summary');
@@ -73,7 +88,11 @@
   
   }
 
-  /* Filter on the selected magnitude and period */
+/* Filter on the selected magnitude and period 
+* list: UN-filtered earthquake list
+* maq_query: dropdown menu selection
+* period_query: radio button selection
+*/
 function filter_Data(list, mag_query, period_query) {
     let min = 4.0;
     let max = 10.0;
@@ -106,23 +125,22 @@ function filter_Data(list, mag_query, period_query) {
     console.log(min,max);
 
     // if radio_button is 1 it is already set above as default
-    // create a boolean based opast 1 day, past 7 days or past 30 days based on radio button period
+    // create a boolean based on past 1 day, past 7 days or past 30 days based on radio button period
     if (period_query === 'radio_2'){
-      starttime =  endtime - 604800000; // 7 days in milliseconds
+      starttime =  endtime - 604800000; // 7 days past in milliseconds
     }
     else if (period_query === 'radio_3'){
-      starttime =  endtime - 2592000000; // 30 days in milliseconds
+      starttime =  endtime - 2592000000; // 30 days pat in milliseconds
     }
 
     console.log(period_query, starttime, endtime);
 
-    /* Filter for Magnitude selected from drodown mwenu */
+    /* Filter for Magnitude selected from drop down mwenu */
     /* Filter for radio buttons, period selected, 1 day, 7 days or 30 days*/
     return list.filter((item)=>{
        return ( (item.properties.mag >= min && item.properties.mag < max) &&
         (item.properties.time >= starttime && item.properties.time < endtime) );
     });
-
 
 }
 
@@ -154,8 +172,7 @@ function filter_Data(list, mag_query, period_query) {
   
   /* Place markers on the map */
   function markerPlace(array, map) {
-    //console.log("markerPlace", array);
-    //const marker = L.marker([51.5, -0.09]).addTo(map);
+  
     /*remove previous markers before placing the new ones*/
     map.eachLayer((layer=>{
         if(layer instanceof L.Marker) {
@@ -179,7 +196,7 @@ function filter_Data(list, mag_query, period_query) {
         m = L.marker([item.geometry.coordinates[1], item.geometry.coordinates[0]]).addTo(map);
        }
 
-        // Add a tooltip
+        // Add a tooltip to the marker
         const tooltip = 'mag= '+ String(item.properties.mag) +"<br>loc= "+
              item.properties.place + "<br>"+"date="+getDateTime(item.properties.time); 
 
@@ -198,7 +215,7 @@ function filter_Data(list, mag_query, period_query) {
    
     const pageMap = initMap(); // initialize leaflet map
 
-    // set query selectors for radio buttons, dropdown menu and update button
+    // set query selectors for radio buttons, dropdown menu, refresh button, media query
     const submitButton= document.querySelector('#get-menuitem'); // get a reference to  submit button
     const radio_1_Button= document.querySelector('#radio_1'); // get a reference to radio 1 submit button
     const radio_2_Button= document.querySelector('#radio_2'); // get a reference to radio 2 submit button
@@ -220,11 +237,11 @@ function filter_Data(list, mag_query, period_query) {
     let parsedData = JSON.parse(storedEarthquakeData);
 
 
-    /* API URL, we add start and end dates and min, max magnitude to this query */
+    /* API URL, we add start and end dates and min, max magnitude to this query*/
     const urlbase ='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&'
 
     let currentList = []; // This list holds the data from API
-    let filtered_List = []; // this list holds the filtered list based on magnitude and data
+    let filtered_List = []; // this list holds the filtered list based on magnitude and period
 
     // Date period of earthquake date
     const endDate = getDateTime (Date.now()); // current date in year,month, day
@@ -234,7 +251,7 @@ function filter_Data(list, mag_query, period_query) {
     let selectedMenuItem_Value = document.getElementById("menuitem_1").value;
     let selectedRadioButton_value = document.querySelector('input[name="period"]:checked').value;
 
-    if(parsedData === null || parsedData?.length === 0){  //if we don't have stred data fetch first
+    if(parsedData === null || parsedData?.length === 0){  //if we don't have sored data fetch first
 
         console.log("parsedData is null", parsedData);
     
@@ -273,7 +290,7 @@ function filter_Data(list, mag_query, period_query) {
         markerPlace(filtered_List, pageMap);
         injectHTML(filtered_List);
    } 
-   else{  // if we have stired browser data, use it
+   else{  // if we have stored browser data, use it
         console.log("parsedData NOT NULL",parsedData);
     
         currentList = processJsonData(parsedData);
@@ -288,7 +305,7 @@ function filter_Data(list, mag_query, period_query) {
    }
 
 
-    // Refresh button listener, when clicked updates earthquake data from teh API
+    // Refresh button listener, when clicked updates earthquake data from the API
     submitButton.addEventListener('click', async (event) =>{
       console.log('update button clicked');
 
@@ -302,7 +319,7 @@ function filter_Data(list, mag_query, period_query) {
       const results = await fetch(urlbase+'&starttime='+startDate+'&endtime='+endDate+'&minmagnitude=4.0&maxmagnitude=10.0');
       const arrayFromJson = await results.json(); // here is where we get the data from our request as JSON
 
-      // Clear the stired data as we are refreshing from the API
+      // Clear the stored data as we are refreshing from the API
       localStorage.clear();
 
       localStorage.setItem('storedEarthquakeData', JSON.stringify(arrayFromJson)); //store as a string in local storage
@@ -319,7 +336,7 @@ function filter_Data(list, mag_query, period_query) {
       filtered_List = filter_Data(currentList, selectedMenuItem_Value, selectedRadioButton_value);
     
       console.log(filtered_List);
-      markerPlace(filtered_List, pageMap);
+      markerPlace(filtered_List, pageMap);y
       injectHTML(filtered_List);
  
     });
@@ -375,7 +392,7 @@ function filter_Data(list, mag_query, period_query) {
      
       const selectedMenuItem = document.getElementById("menuitem_1");
       
-       // Take action only dropdown value has changed.
+       // Take action only if dropdown menu value has changed.
       if (selectedMenuItem.value != selectedMenuItem_Value)
       {
         console.log("selected menu item value = ", selectedMenuItem.value);
@@ -400,16 +417,15 @@ function filter_Data(list, mag_query, period_query) {
 
       if(myMediaQuery.matches) {
         console.log("Media query triggered match");
-
         slidesArray.forEach(slide => { 
           slide.classList.remove('visible');
           slide.classList.add('hidden');
         });
     
-       } else {
+      } else {
          slidePosition = updateImage(slidesArray,slidePosition);
     
-       }
+      }
   });
 
   
